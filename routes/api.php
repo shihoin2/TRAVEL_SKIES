@@ -12,7 +12,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::prefix('travel_skies')
 ->controller(WeatherController::class)
 ->group(function () {
-    Route::get('/get_prefecture_locale', 'getPrefectureLocale')->name('getPrefectureLocale');
+    Route::get('/get_city_weather', 'getCityWeather')->name('getCityWeather');
     Route::get('/get_prefecture_weather', 'getPrefectureWeather')->name('getPrefectureWeather');
 });
 

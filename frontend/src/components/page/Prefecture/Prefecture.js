@@ -3,19 +3,19 @@
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import PrefectureImage from './PrefectureImage'
+import WeatherCard from '@/components/ui/WeatherCard'
 
 const Prefecture = () => {
     const { prefecture } = useParams()
     const [weather, setWeather] = useState([])
 
-    // URLパラメータをデコードする関数
     const decodeParam = param => decodeURIComponent(param)
+    const decodedPrefecture = decodeParam(prefecture)
 
     useEffect(() => {
         const fetchWeatherData = async () => {
             if (prefecture) {
-                const decodedPrefecture = decodeParam(prefecture)
-                console.log(decodedPrefecture)
                 try {
                     const response = await axios.get(
                         'http://localhost/api/travel_skies/get_prefecture_weather',
@@ -24,7 +24,7 @@ const Prefecture = () => {
                         },
                     )
                     setWeather(response.data)
-                    console.log(weather)
+                    console.log(response.data)
                 } catch (err) {
                     console.error('Error fetching weather data:', err)
                 }
@@ -33,32 +33,33 @@ const Prefecture = () => {
         fetchWeatherData()
     }, [prefecture])
 
-    useEffect(() => {
-        console.log('Weather data updated:', weather)
-    }, [weather]) // `weather` が変更されたときにログを表示
-
     return (
         <>
-            {weather.length > 0 ? (
+            <h1>{decodedPrefecture}の天気</h1>
+            <PrefectureImage
+                decodedPrefecture={decodedPrefecture}
+                weather={weather}
+            />
+            {/* {weather.length > 0 ? (
                 weather.map((data, index) => (
                     <div key={index}>
-                        <h2>{data.city}</h2>
-                        <p>{JSON.stringify(data.weather)}</p>
-
-                        {data.weather.weather.map((weatherInfo, idx) => (
-                            <p key={idx}>
-                                <img
-                                    src={`https://openweathermap.org/img/wn/${weatherInfo.icon}@2x.png`}
-                                    alt="weather_icon"
-                                />
-                                {weatherInfo.main} - {weatherInfo.description}
-                            </p>
-                        ))}
+                        <WeatherCard
+                            weather_icon={data.weather.icon}
+                            city_name={data.city_name}
+                            weather_time={data.weather.weather_time}
+                            temperature={data.weather.temperature}
+                            temp_max={data.weather.temp_max}
+                            temp_min={data.weather.temp_min}
+                            humidity={data.weather.humidity}
+                            feels_like={data.weather.feels_like}
+                            main={data.weather.main}
+                            description={data.weather.description}
+                        />
                     </div>
                 ))
             ) : (
                 <p>Loading weather data...</p>
-            )}
+            )} */}
         </>
     )
 }

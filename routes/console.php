@@ -13,4 +13,7 @@ use App\Console\Commands\GetWeather;
 // Artisan::command('weather:get', function () {
 //     Log::info('天気予報データを取得しデータベースに保存しました。');
 // })->purpose('天気予報データを取得&登録')->everyTenSeconds();
-Schedule::command('weather:get')->everyTenMinutes();
+Schedule::command('weather:get')->everyThirtyMinutes();
+// Schedule::command('weather:get8d')->everyFiveMinutes();
+// Schedule::command('weather:get8d')->everySixHours($minutes = 0);
+Schedule::command('weather:get8d')->daily();

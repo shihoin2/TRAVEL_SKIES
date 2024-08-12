@@ -10,7 +10,7 @@ const HomePage = () => {
     return (
         <>
             {/* <Header /> */}
-            <p>TRAVEL</p>
+
             <Home />
         </>
     )
