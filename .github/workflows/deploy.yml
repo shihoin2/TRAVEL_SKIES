@@ -21,7 +21,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.PRIVATE_KEY }}
           # passphrase: ${{ secrets.SSH_PASS }}
-
           script: |
             cd ${{ secrets.SERVER_DEPLOY_DIR }}
             git pull origin main
