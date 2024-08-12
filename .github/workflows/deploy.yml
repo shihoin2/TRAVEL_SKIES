@@ -1,22 +1,23 @@
 name: EC2 auto deploy
 
-# mainにpush時アクションが実行
 on:
- push:
-   branches:
-     - main
+  push:
+    branches:
+      - main
 
-#実行処理
 jobs:
- build:
-   # 実行環境
-   runs-on: ubuntu-latest
-   steps:
+  build:
+    runs-on: ubuntu-latest
 
-     # デプロイする
-     - name: Deploy
-       run: |
-         # SSH接続して、git pullする
-         echo "${{ secrets.PRIVATE_KEY }}" > private_key
-         chmod 600 private_key
-         ssh -oStrictHostKeyChecking=no ${{ secrets.USER_NAME }}@${{ secrets.HOST_NAME }} -i private_key "cd /var/www/html/ && git fetch origin && git pull origin main"
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
+          script: |
+            cd ${{ secrets.SERVER_DEPLOY_DIR }}
+            git pull origin main
