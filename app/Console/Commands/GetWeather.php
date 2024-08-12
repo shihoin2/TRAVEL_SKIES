@@ -31,55 +31,7 @@ class GetWeather extends Command
      */
     public function handle()
     {
-        $prefectures = [
-            '北海道' => ['Sapporo', 'Asahikawa', 'Hakodate'],
-            '青森県' => ['Aomori', 'Hachinohe'],
-            '岩手県' => ['Morioka'],
-            '宮城県' => ['Sendai'],
-            '秋田県' => ['Akita'],
-            '山形県' => ['Yamagata'],
-            '福島県' => ['Fukushima'],
-            '茨城県' => ['Mito'],
-            '栃木県' => ['Utsunomiya'],
-            '群馬県' => ['Maebashi'],
-            '埼玉県' => ['Saitama'],
-            '千葉県' => ['Chiba'],
-            '東京都' => ['Tokyo'],
-            '神奈川県' => ['Yokohama', 'Kawasaki'],
-            '新潟県' => ['Niigata'],
-            '富山県' => ['Toyama'],
-            '石川県' => ['Kanazawa'],
-            '福井県' => ['Fukui'],
-            '山梨県' => ['Kofu'],
-            '長野県' => ['Nagano'],
-            '岐阜県' => ['Gifu'],
-            '静岡県' => ['Shizuoka', 'Hamamatsu'],
-            '愛知県' => ['Nagoya'],
-            '三重県' => ['Tsu'],
-            '滋賀県' => ['Otsu'],
-            '京都府' => ['Kyoto'],
-            '大阪府' => ['Osaka'],
-            '兵庫県' => ['Kobe', 'Himeji'],
-            '奈良県' => ['Nara'],
-            '和歌山県' => ['Wakayama'],
-            '鳥取県' => ['Tottori'],
-            '島根県' => ['Matsue'],
-            '岡山県' => ['Okayama'],
-            '広島県' => ['Hiroshima'],
-            '山口県' => ['Yamaguchi'],
-            '徳島県' => ['Tokushima'],
-            '香川県' => ['Takamatsu'],
-            '愛媛県' => ['Matsuyama'],
-            '高知県' => ['Kochi'],
-            '福岡県' => ['Fukuoka', 'Kitakyushu'],
-            '佐賀県' => ['Saga'],
-            '長崎県' => ['Nagasaki'],
-            '熊本県' => ['Kumamoto'],
-            '大分県' => ['Oita'],
-            '宮崎県' => ['Miyazaki'],
-            '鹿児島県' => ['Kagoshima'],
-            '沖縄県' => ['Naha']
-        ];
+        $prefectures = config('prefectures');
         $apiKey = env('WEATHER_API_KEY');
         $geocodeBaseUrl = env('WEATHER_API_GEOCODE_BASE_URL');
         $weatherBaseUrl = env('WEATHER_API_BASE_URL');
@@ -87,7 +39,8 @@ class GetWeather extends Command
 
         foreach ($prefectures as $prefecture => $cities) {
             foreach ($cities as $city) {
-                $url = "{$geocodeBaseUrl}?q={$city},{$country}&limit=1&appid={$apiKey}";
+                $url = "{$geocodeBaseUrl}?q={$city},{$prefecture},{$country}&limit=1&appid={$apiKey}";
+                // $url = "{$geocodeBaseUrl}?q={$city},{$prefecture},{$country}&limit=1&appid={$apiKey}&lang=ja";
 
                 try {
                     $response = Http::get($url);
@@ -98,13 +51,16 @@ class GetWeather extends Command
                         $lon = $data[0]['lon'];
 
                         // 天気情報を取得
-                        $weatherUrl = "{$weatherBaseUrl}?lat={$lat}&lon={$lon}&appid={$apiKey}";
+                        // $weatherUrl = "{$weatherBaseUrl}?lat={$lat}&lon={$lon}&appid={$apiKey}&units=metric";
+                        $weatherUrl = "{$weatherBaseUrl}?lat={$lat}&lon={$lon}&appid={$apiKey}&lang=ja&units=metric";
                             $weatherResponse = Http::get($weatherUrl);
                             $weatherData = $weatherResponse->json();
 
+                            if (isset($weatherData['sys']['country'])) {
                             // データベースに保存
                             Weather::updateOrCreate(
-                                ['city_name' => $weatherData['name'], 'country' => $weatherData['sys']['country']],
+                                // ['city_name' => $weatherData['name'], 'country' => $weatherData['sys']['country']],
+                                ['city_name' => $data[0]['local_names']['ja'], 'country' => $weatherData['sys']['country']],
                                 [
                                     'lat' => $weatherData['coord']['lat'],
                                     'lon' => $weatherData['coord']['lon'],
@@ -126,12 +82,19 @@ class GetWeather extends Command
                                     'rain_1h' => $weatherData['rain']['1h'] ?? null,  // 雨量がない場合は null
                                 ]
                             );
+                            $this->info('Updating weather for: ' . $weatherData['name']);
+                        } else {
+                            $this->error("天気情報に国コードが見つかりませんでした: {$city}, {$prefecture}");
                         }
+                    } else {
+                        $this->error("ジオコード情報が見つかりませんでした: {$city}, {$prefecture}");
+                    }
                 } catch (\Exception $e) {
                     $this->error('データ取得に失敗しました: ' . $e->getMessage());
                 }
             }
         }
         $this->info('天気データの取得が完了しました。');
+        $this->info('Updating weather for: ' . $data[0]['local_names']['ja']);
     }
 }
