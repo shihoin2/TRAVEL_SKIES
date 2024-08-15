@@ -7,32 +7,46 @@
 title: "TRAVEL SKIES"
 ---
 erDiagram
-    %% REGIONS {
-    %%     BIGINT id PK
-    %%     VARCHAR(50) name
-    %%     TEXT description
-    %% }
+    daily_weather {
+        int id PK
+        string city_name
+        double lat
+        double lon
+        datetime weather_time
+        datetime sunrise
+        datetime sunset
+        datetime moonrise
+        datetime moonset
+        float moon_phase
+        string summary
+        float temp_day
+        float temp_min
+        float temp_max
+        float temp_night
+        float temp_eve
+        float temp_morn
+        float feels_like_day
+        float feels_like_night
+        float feels_like_eve
+        float feels_like_morn
+        int pressure
+        int humidity
+        float dew_point
+        float wind_speed
+        int wind_deg
+        float wind_gust
+        string weather_main
+        string weather_description
+        string weather_icon
+        int clouds
+        float pop
+        float rain
+        float uvi
+        datetime created_at
+        datetime updated_at
+        }
 
-    %% PREFECTURES {
-    %%     BIGINT id PK
-    %%     VARCHAR(50) name
-    %%     BIGINT region_id FK
-    %%     VARCHAR(255) image_url
-    %%     TIMESTAMP created_at
-    %%     TIMESTAMP updated_at
-    %% }
-
-    %% CITIES {
-    %%     BIGINT id PK
-    %%     VARCHAR(100) name
-    %%     BIGINT prefecture_id FK
-    %%     FLOAT latitude
-    %%     FLOAT longitude
-    %%     TIMESTAMP created_at
-    %%     TIMESTAMP updated_at
-    %% }
-
-     japan_addresses {
+     japan_address {
         int id PK
         int ken_id
         int city_id
@@ -59,7 +73,7 @@ erDiagram
         timestamp updated_at
     }
 
-    WEATHERS {
+    weather {
         bigint id PK
         bigint city_id FK
         string country
@@ -84,9 +98,6 @@ erDiagram
         timestamp updated_at
     }
 
-    %% REGIONS ||--o{ PREFECTURES : "has"
-    %% PREFECTURES ||--o{ CITIES : "has"
-    japan_addresses ||--o{ WEATHERS : "has"
 
 
 ```
