@@ -25,7 +25,14 @@ class JapanAddressController extends Controller
             '沖縄' => ['沖縄県']
         ];
 
-        $groupePrefectureNames = [];
+	$groupePrefectureNames = [];
+
+	//追加
+
+	foreach ($regions as $region => $prefectureNames) {
+        $groupePrefectureNames[$region] = [];
+	}
+	////
 
         foreach ($uniquePrefectureNames as $prefecture) {
             foreach ($regions as $region => $prefectureNames) {
@@ -34,7 +41,14 @@ class JapanAddressController extends Controller
                     break;
                 }
             }
+	}
+	 // 地域の順序を保証するために、`$regions` の順序で結果を整列
+    $sortedGroupePrefectureNames = [];
+    foreach (array_keys($regions) as $region) {
+        if (isset($groupePrefectureNames[$region])) {
+            $sortedGroupePrefectureNames[$region] = $groupePrefectureNames[$region];
         }
-        return response()->json($groupePrefectureNames);
+    }
+	return response()->json($sortedGroupePrefectureNames);
     }
 }
